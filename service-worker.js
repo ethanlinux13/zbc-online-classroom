@@ -1,36 +1,5 @@
-const CACHE = "zbc-classroom-v1";
-const ASSETS = [
-  "./",
-  "index.html",
-  "styles.css",
-  "config.js",
-  "app.js",
-  "manifest.webmanifest",
-  "icons/icon-192.svg",
-  "icons/icon-512.svg"
-];
-
-self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-  );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        return response;
-      })
-      .catch(() => caches.match(event.request).then(r => r || caches.match("index.html")))
-  );
-});
+const CACHE="zbc-classroom-v2";
+const ASSETS=["./","index.html","styles.css?v=2","config.js?v=2","app.js?v=2","manifest.webmanifest","icons/icon-192.svg","icons/icon-512.svg"];
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting()});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
+self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;const u=new URL(e.request.url);if(u.origin===location.origin&&(u.pathname.endsWith("config.js")||u.pathname.endsWith("app.js")||u.pathname.endsWith("styles.css")||u.pathname.endsWith("index.html")||u.pathname.endsWith("/zbc-online-classroom/"))){e.respondWith(fetch(e.request,{cache:"no-store"}).then(r=>{const x=r.clone();caches.open(CACHE).then(c=>c.put(e.request,x));return r}).catch(()=>caches.match(e.request)));return}e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});
