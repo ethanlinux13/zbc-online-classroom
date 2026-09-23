@@ -12,19 +12,95 @@
   <title>ZBC Online Classroom</title>
 </head>
 <body>
-  <div class="bg-glow glow-1"></div><div class="bg-glow glow-2"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
   <header class="site-header shell">
-    <a class="brand" href="#top"><div class="brand-mark">ZBC</div><div><p class="eyebrow">Zambales Bible College</p><h1>Online Classroom</h1></div></a>
+    <a class="brand" href="#top" aria-label="ZBC Online Classroom home">
+      <div class="brand-mark" aria-hidden="true">ZBC</div>
+      <div>
+        <p class="eyebrow">Zambales Bible College</p>
+        <h1>Online Classroom</h1>
+      </div>
+    </a>
     <button id="installBtn" class="ghost-btn hidden" type="button">Install App</button>
   </header>
+
   <main id="top" class="shell main-grid">
-    <section class="hero-panel card"><div class="hero-copy"><span class="status-pill" id="dayPill">Loading…</span><p class="eyebrow">Welcome to your class portal</p><h2 id="heroTitle">Preparing today's class…</h2><p id="heroSubtitle" class="hero-subtitle">Your daily class information will appear here automatically.</p></div><div class="hero-actions"><a id="zoomBtn" class="primary-btn disabled" href="#" target="_blank" rel="noopener">Join Zoom Class</a><a id="discordBtn" class="secondary-btn disabled" href="#" target="_blank" rel="noopener">Open Discord</a></div></section>
-    <section class="today-card card"><div class="section-heading"><div><p class="eyebrow">Today</p><h3>Class Details</h3></div><span id="liveClock" class="clock">--:--</span></div><div class="detail-list"><div class="detail-row"><span>Subject</span><strong id="todaySubject">—</strong></div><div class="detail-row"><span>Instructor</span><strong id="todayInstructor">—</strong></div><div class="detail-row"><span>Time</span><strong id="todayTime">—</strong></div><div class="detail-row"><span>Mode</span><strong id="todayMode">Online</strong></div></div></section>
-    <section class="announcements card"><div class="section-heading"><div><p class="eyebrow">Updates</p><h3>Announcements</h3></div></div><div id="announcementList" class="announcement-list"></div></section>
-    <section class="schedule-section card"><div class="section-heading"><div><p class="eyebrow">Monday–Thursday</p><h3>Weekly Schedule</h3></div><span class="mini-note">Auto-highlighted</span></div><div id="scheduleGrid" class="schedule-grid"></div></section>
-    <section class="quick-guide card"><div class="section-heading"><div><p class="eyebrow">Before class</p><h3>Quick Guide</h3></div></div><ol class="guide-list"><li>Open this portal 10 minutes before class.</li><li>Use your complete name when joining Zoom.</li><li>Keep Discord open for files, assignments, and class updates.</li></ol></section>
+    <section class="hero-panel card">
+      <div class="hero-copy">
+        <span class="status-pill" id="dayPill">Loading…</span>
+        <p class="eyebrow">Welcome to your class portal</p>
+        <h2 id="heroTitle">Preparing today's class…</h2>
+        <p id="heroSubtitle" class="hero-subtitle">Your daily class information will appear here automatically.</p>
+      </div>
+      <div class="hero-actions">
+        <a id="zoomBtn" class="primary-btn disabled" href="#" target="_blank" rel="noopener">Join Zoom Class</a>
+        <a id="discordBtn" class="secondary-btn disabled" href="#" target="_blank" rel="noopener">Open Discord</a>
+      </div>
+    </section>
+
+    <section class="today-card card" aria-labelledby="todayHeading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Today</p>
+          <h3 id="todayHeading">Class Details</h3>
+        </div>
+        <span id="liveClock" class="clock">--:--</span>
+      </div>
+
+      <div id="todayContent" class="detail-list">
+        <div class="detail-row"><span>Subject</span><strong id="todaySubject">—</strong></div>
+        <div class="detail-row"><span>Instructor</span><strong id="todayInstructor">—</strong></div>
+        <div class="detail-row"><span>Time</span><strong id="todayTime">—</strong></div>
+        <div class="detail-row"><span>Mode</span><strong id="todayMode">Online</strong></div>
+      </div>
+    </section>
+
+    <section class="schedule-section card" aria-labelledby="scheduleHeading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Monday–Thursday</p>
+          <h3 id="scheduleHeading">Weekly Schedule</h3>
+        </div>
+        <span class="mini-note">Auto-highlighted</span>
+      </div>
+      <div id="scheduleGrid" class="schedule-grid"></div>
+    </section>
+
+    <section class="announcements card" aria-labelledby="announcementHeading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Updates</p>
+          <h3 id="announcementHeading">Announcements</h3>
+        </div>
+      </div>
+      <div id="announcementList" class="announcement-list"></div>
+    </section>
+
+    <section class="quick-guide card" aria-labelledby="guideHeading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Before class</p>
+          <h3 id="guideHeading">Quick Guide</h3>
+        </div>
+      </div>
+      <ol class="guide-list">
+        <li>Open this portal 10 minutes before class.</li>
+        <li>Use your complete name when joining Zoom.</li>
+        <li>Keep Discord open for files, assignments, and class updates.</li>
+      </ol>
+    </section>
   </main>
-  <footer class="site-footer shell"><p>Zambales Bible College • Equipping men and women for ministry</p><p class="footer-small">Install this portal on your phone for one-tap classroom access.</p></footer>
+
+  <footer class="site-footer shell">
+    <p>Zambales Bible College • Equipping men and women for ministry</p>
+    <p class="footer-small">Install this portal on your phone for one-tap classroom access.</p>
+  </footer>
+
   <div id="offlineBanner" class="offline-banner hidden">You are offline. Cached portal information is still available.</div>
-  <script src="config.js"></script><script src="app.js"></script>
-</body></html>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
