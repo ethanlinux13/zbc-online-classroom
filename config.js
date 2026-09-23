@@ -20,7 +20,7 @@ window.ZBC_CONFIG = {
       { subject: "Theology 2", instructor: "Rev. Danny Romero", platform: "Zoom", link: "https://zoom.us/j/91571589147?pwd=jGpkKw3KY91X7jIM3Y9CMgdiM0b8O2.1#success" }
     ]
   },
-  announcementApi: "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE",
+  announcementApi: "https://script.google.com/macros/s/AKfycbwOlXfCyvZQij6HZbV_InWpzK9HAzGDqfuAe1gRzCd4sul8rWANbKfItZOpfib8DpHWfg/exec",
   announcements: [
     { title: "Class Time", text: "Regular online classes begin at 6:00 PM Philippine Time." },
     { title: "Classroom Reminder", text: "Please enter your classroom around 10 minutes before class and use your complete name." }
