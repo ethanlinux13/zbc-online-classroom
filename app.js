@@ -1,126 +1,32 @@
 (() => {
-  const config = window.ZBC_CONFIG || {};
-  const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
-  const label = s => s.charAt(0).toUpperCase() + s.slice(1);
-
-  const fmt = new Intl.DateTimeFormat("en-PH", {
-    timeZone: config.timezone || "Asia/Manila",
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  });
-
-  function manilaNowParts() {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      timeZone: config.timezone || "Asia/Manila",
-      weekday: "long",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true
-    }).formatToParts(new Date());
-    const obj = Object.fromEntries(parts.map(p => [p.type, p.value]));
-    return obj;
-  }
-
-  function currentDayKey() {
-    return manilaNowParts().weekday.toLowerCase();
-  }
-
-  function renderToday() {
-    const dayKey = currentDayKey();
-    const today = config.schedule?.[dayKey];
-    const active = Boolean(today);
-    const dateText = fmt.format(new Date());
-
-    document.getElementById("dayPill").textContent = dateText;
-    document.getElementById("zoomBtn").href = config.zoomUrl || "#";
-    document.getElementById("discordBtn").href = config.discordUrl || "#";
-
-    const zoomBtn = document.getElementById("zoomBtn");
-    const discordBtn = document.getElementById("discordBtn");
-    [zoomBtn, discordBtn].forEach(btn => btn.classList.toggle("disabled", !active));
-
-    if (active) {
-      document.getElementById("heroTitle").textContent = today.subject;
-      document.getElementById("heroSubtitle").textContent = `${today.instructor} • ${today.time} • ${today.mode || "Online"}`;
-      document.getElementById("todaySubject").textContent = today.subject;
-      document.getElementById("todayInstructor").textContent = today.instructor;
-      document.getElementById("todayTime").textContent = today.time;
-      document.getElementById("todayMode").textContent = today.mode || "Online";
-    } else {
-      document.getElementById("heroTitle").textContent = "No Regular Class Today";
-      document.getElementById("heroSubtitle").textContent = "Regular ZBC online classes run Monday through Thursday. Check announcements for special sessions.";
-      document.getElementById("todaySubject").textContent = "No regular class";
-      document.getElementById("todayInstructor").textContent = "—";
-      document.getElementById("todayTime").textContent = "—";
-      document.getElementById("todayMode").textContent = "—";
-    }
-  }
-
-  function renderSchedule() {
-    const grid = document.getElementById("scheduleGrid");
-    const current = currentDayKey();
-    const days = ["monday","tuesday","wednesday","thursday"];
-    grid.innerHTML = days.map(day => {
-      const item = config.schedule?.[day] || {};
-      const isActive = day === current;
-      return `<article class="schedule-item ${isActive ? "active" : ""}">
-        ${isActive ? '<span class="active-dot" aria-hidden="true"></span>' : ''}
-        <div class="schedule-day">${label(day)}</div>
-        <h4>${item.subject || "Class schedule"}</h4>
-        <p>${item.instructor || "Instructor TBA"}</p>
-        <p>${item.time || "Time TBA"}</p>
-      </article>`;
-    }).join("");
-  }
-
-  function renderAnnouncements() {
-    const list = document.getElementById("announcementList");
-    const items = config.announcements || [];
-    list.innerHTML = items.length ? items.map(item => `
-      <div class="announcement">
-        <strong>${item.title}</strong>
-        <p>${item.text}</p>
-      </div>`).join("") : '<div class="announcement"><p>No announcements at this time.</p></div>';
-  }
-
-  function updateClock() {
-    const p = manilaNowParts();
-    document.getElementById("liveClock").textContent = `${p.hour}:${p.minute} ${p.dayPeriod}`;
-  }
-
-  let deferredPrompt;
-  const installBtn = document.getElementById("installBtn");
-  window.addEventListener("beforeinstallprompt", e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.classList.remove("hidden");
-  });
-  installBtn.addEventListener("click", async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installBtn.classList.add("hidden");
-  });
-
-  function updateOnlineState() {
-    document.getElementById("offlineBanner").classList.toggle("hidden", navigator.onLine);
-  }
-  window.addEventListener("online", updateOnlineState);
-  window.addEventListener("offline", updateOnlineState);
-
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js"));
-  }
-
-  renderToday();
-  renderSchedule();
-  renderAnnouncements();
-  updateClock();
-  updateOnlineState();
-  setInterval(updateClock, 30000);
-  setInterval(() => { renderToday(); renderSchedule(); }, 300000);
+const config=window.ZBC_CONFIG||{}, label=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const fmt=new Intl.DateTimeFormat("en-PH",{timeZone:config.timezone||"Asia/Manila",weekday:"long",year:"numeric",month:"long",day:"numeric"});
+function parts(){return Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:config.timezone||"Asia/Manila",weekday:"long",hour:"2-digit",minute:"2-digit",hour12:true}).formatToParts(new Date()).map(p=>[p.type,p.value]))}
+function day(){return parts().weekday.toLowerCase()}
+function renderToday(){
+ const classes=config.schedule?.[day()]||[], active=classes.length>0;
+ dayPill.textContent=fmt.format(new Date());
+ if(active){
+   heroTitle.textContent=classes.length>1?classes.length+" Classes Today":classes[0].subject;
+   heroSubtitle.textContent=classes.map(x=>x.subject+" • "+x.instructor).join("  |  ");
+   todaySubject.textContent=classes.map(x=>x.subject).join(" / ");
+   todayInstructor.textContent=classes.map(x=>x.instructor).join(" / ");
+   todayTime.textContent=config.classTime||"6:00 PM"; todayMode.textContent="Online";
+   const z=classes.find(x=>x.platform==="Zoom"), d=classes.find(x=>x.platform==="Discord");
+   zoomBtn.href=z?.link||"#"; discordBtn.href=d?.link||"#";
+   zoomBtn.classList.toggle("disabled",!z); discordBtn.classList.toggle("disabled",!d);
+ } else {
+   heroTitle.textContent="No Regular Class Today"; heroSubtitle.textContent="Regular ZBC online classes run Monday through Thursday.";
+   todaySubject.textContent="No regular class";todayInstructor.textContent="—";todayTime.textContent="—";todayMode.textContent="—";
+   zoomBtn.href="#";discordBtn.href="#";zoomBtn.classList.add("disabled");discordBtn.classList.add("disabled");
+ }}
+function renderSchedule(){
+ const current=day(), days=["monday","tuesday","wednesday","thursday"];
+ scheduleGrid.innerHTML=days.map(d=>{const items=config.schedule?.[d]||[];return '<article class="schedule-item '+(d===current?'active':'')+'>'+(d===current?'<span class="active-dot"></span>':'')+'<div class="schedule-day">'+label(d)+'</div>'+items.map(x=>'<div class="class-entry"><h4>'+x.subject+'</h4><p>'+x.instructor+'</p><p>'+config.classTime+' • '+x.platform+'</p><a class="class-link" href="'+x.link+'" target="_blank" rel="noopener">Open '+x.platform+'</a></div>').join("")+'</article>'}).join("")}
+function announcements(){announcementList.innerHTML=(config.announcements||[]).map(x=>'<div class="announcement"><strong>'+x.title+'</strong><p>'+x.text+'</p></div>').join("")}
+function clock(){const p=parts();liveClock.textContent=p.hour+":"+p.minute+" "+p.dayPeriod}
+let deferredPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;installBtn.classList.remove("hidden")});installBtn.addEventListener("click",async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.classList.add("hidden")});
+function online(){offlineBanner.classList.toggle("hidden",navigator.onLine)}window.addEventListener("online",online);window.addEventListener("offline",online);
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js"));
+renderToday();renderSchedule();announcements();clock();online();setInterval(clock,30000);
 })();
