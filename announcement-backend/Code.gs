@@ -26,9 +26,24 @@ function doGet(e) {
 
   const a = ss.getSheetByName(ANNOUNCEMENT_SHEET).getDataRange().getDisplayValues();
   const announcements = a.slice(1)
-    .filter(r => String(r[8]).toLowerCase() !== 'false')
-    .map(r => ({id:r[0],publishedAt:r[1],title:r[2],message:r[3],priority:r[4]||'Normal',imageUrl:r[5],facebookUrl:r[6],expiresAt:r[7]}))
-    .filter(x => !x.expiresAt || !isNaN(new Date(x.expiresAt)) && new Date(x.expiresAt) >= now)
+    // Ignore blank/incomplete rows and rows explicitly disabled.
+    .filter(r =>
+      String(r[0]).trim() &&
+      String(r[2]).trim() &&
+      String(r[3]).trim() &&
+      String(r[8]).trim().toLowerCase() !== 'false'
+    )
+    .map(r => ({
+      id:String(r[0]).trim(),
+      publishedAt:r[1],
+      title:String(r[2]).trim(),
+      message:String(r[3]).trim(),
+      priority:r[4]||'Normal',
+      imageUrl:r[5],
+      facebookUrl:r[6],
+      expiresAt:r[7]
+    }))
+    .filter(x => !x.expiresAt || (!isNaN(new Date(x.expiresAt)) && new Date(x.expiresAt) >= now))
     .reverse();
 
   const s = ss.getSheetByName(CLASS_SHEET).getDataRange().getDisplayValues();
