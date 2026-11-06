@@ -7,7 +7,7 @@ const SCHEDULE_HEADERS = ['id','academicYear','program','yearLevel','day','subje
 const SETTINGS_SHEET = 'ScheduleSettings';
 const SETTINGS_HEADERS = ['academicYear','program','yearLevel','published'];
 
-const ADMIN_EMAIL = 'zambalesbiblecollege@gmail.com';
+const ADMIN_EMAIL = 'asbanben@gmail.com';
 
 function setupPortal() {
   setupSheet_(ANNOUNCEMENT_SHEET, ANNOUNCEMENT_HEADERS);
