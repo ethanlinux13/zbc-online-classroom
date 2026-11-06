@@ -2,44 +2,27 @@ const ANNOUNCEMENT_SHEET = 'Announcements';
 const ANNOUNCEMENT_HEADERS = ['id','publishedAt','title','message','priority','imageUrl','facebookUrl','expiresAt','active'];
 const CLASS_SHEET = 'ClassLinks';
 const CLASS_HEADERS = ['day','subject','instructor','platform','classTime','link','active'];
+const SCHEDULE_SHEET = 'Schedules';
+const SCHEDULE_HEADERS = ['id','academicYear','program','yearLevel','day','subject','units','instructor','platform','classTime','link','active'];
+const SETTINGS_SHEET = 'ScheduleSettings';
+const SETTINGS_HEADERS = ['academicYear','program','yearLevel','published'];
 
-const DEFAULT_CLASSES = [
-  ['Monday','Homiletics I','Rev. Rhey Requiez','Zoom','6:00 PM','https://us02web.zoom.us/launch/jc/84765408220',true],
-  ['Monday','Methods of Bible Study','Rev. Andy Basilio','Zoom','6:30 PM','https://zoom.us/j/95021216760?pwd=YC47Nn9jJRvU7hhmYFtqK1996iCgMp.1',true],
-  ['Tuesday','Synoptic Gospels','Rev. Jerry Gura','Zoom','6:00 PM','https://zoom.us/j/96587285955?pwd=FEJyfL1feZ4Ui2o5iViJJ268tJYG01.1',true],
-  ['Tuesday','Pentateuch & Historical Books','Rev. Angelo Atienza','Zoom','6:00 PM','https://us06web.zoom.us/j/84639234123?pwd=YmTqG6AZ6Syf9nutaFvpzNHSDPG0fl.1',true],
-  ['Wednesday','Psycho-Spiritual Development','Ptr. Nervin Lusung','Discord','6:00 PM','https://discord.com/channels/1437746844041089056/1516686341562302534',true],
-  ['Wednesday','Leadership Development','Rev. Nora Catipon','Zoom','6:00 PM','https://us02web.zoom.us/j/2524917226?pwd=WmZSeThtSEFGeVNheEZrUXgzWk94UT09&fbclid=IwY2xjawSfUA5leHRuA2FlbQIxMABicmlkETFZTlJrOENpb2hTTVB1TVg2c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHnfOrNtbl19wZleSEjnFb3SHzjIQIULHv-95-tLvUlVw8uoKixX1Clxe1fOA_aem_pjgPpUBYfXUr8UwKqYwFUw',true],
-  ['Thursday','Intro To The Bible','Rev. Jomar Peter De Guzman','Discord','6:00 PM','https://discord.com/channels/1437746844041089056/1517012665166467093',true],
-  ['Thursday','Theology 2','Rev. Danny Romero','Zoom','6:00 PM','https://zoom.us/j/91571589147?pwd=jGpkKw3KY91X7jIM3Y9CMgdiM0b8O2.1#success',true]
-];
+const ADMIN_EMAIL = 'zambalesbiblecollege@gmail.com';
 
 function setupPortal() {
   setupSheet_(ANNOUNCEMENT_SHEET, ANNOUNCEMENT_HEADERS);
-  const classSheet = setupSheet_(CLASS_SHEET, CLASS_HEADERS);
-
-  // Populate the current ZBC schedule only when ClassLinks has no data rows.
-  if (classSheet.getLastRow() === 1) {
-    classSheet.getRange(2, 1, DEFAULT_CLASSES.length, CLASS_HEADERS.length).setValues(DEFAULT_CLASSES);
-  }
+  setupSheet_(CLASS_SHEET, CLASS_HEADERS);
+  setupSheet_(SCHEDULE_SHEET, SCHEDULE_HEADERS);
+  setupSheet_(SETTINGS_SHEET, SETTINGS_HEADERS);
 }
 
-function setupAnnouncements() {
-  setupPortal();
-}
+function setupAnnouncements() { setupPortal(); }
 
 function setupSheet_(name, headers) {
   const ss = SpreadsheetApp.getActive();
   let sh = ss.getSheetByName(name);
-
-  if (!sh) {
-    sh = ss.insertSheet(name);
-  }
-
-  if (sh.getLastRow() === 0) {
-    sh.appendRow(headers);
-  }
-
+  if (!sh) sh = ss.insertSheet(name);
+  if (sh.getLastRow() === 0) sh.appendRow(headers);
   sh.setFrozenRows(1);
   sh.getRange(1, 1, 1, headers.length).setFontWeight('bold');
   return sh;
@@ -47,79 +30,176 @@ function setupSheet_(name, headers) {
 
 function doGet(e) {
   setupPortal();
+  if (e && e.parameter && e.parameter.admin === '1') {
+    if (!isAuthorizedAdmin_()) {
+      return HtmlService.createHtmlOutput('<h2>Access denied</h2><p>Please sign in using ' + ADMIN_EMAIL + ' and open the administrator deployment.</p>');
+    }
+    return HtmlService.createHtmlOutputFromFile('Admin')
+      .setTitle('ZBC Schedule CMS')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
 
   const ss = SpreadsheetApp.getActive();
   const now = new Date();
-
-  const announcementData = ss.getSheetByName(ANNOUNCEMENT_SHEET).getDataRange().getDisplayValues();
+  const a = ss.getSheetByName(ANNOUNCEMENT_SHEET).getDataRange().getDisplayValues();
   const announcements = [];
 
-  for (let i = 1; i < announcementData.length; i++) {
-    const r = announcementData[i];
+  for (let i = 1; i < a.length; i++) {
+    const r = a[i];
     const id = String(r[0]).trim();
     const title = String(r[2]).trim();
     const message = String(r[3]).trim();
     const active = String(r[8]).trim().toLowerCase();
-
-    if (!id || !title || !message || active === 'false') {
-      continue;
+    if (!id || !title || !message || active === 'false') continue;
+    if (r[7]) {
+      const expiry = new Date(r[7]);
+      if (!isNaN(expiry.getTime()) && expiry < now) continue;
     }
-
-    const expiresAt = r[7];
-    if (expiresAt) {
-      const expiry = new Date(expiresAt);
-      if (!isNaN(expiry.getTime()) && expiry < now) {
-        continue;
-      }
-    }
-
     announcements.push({
-      id: id,
-      publishedAt: r[1],
-      title: title,
-      message: message,
-      priority: r[4] || 'Normal',
-      imageUrl: r[5],
-      facebookUrl: r[6],
-      expiresAt: expiresAt
+      id: id, publishedAt: r[1], title: title, message: message,
+      priority: r[4] || 'Normal', imageUrl: r[5], facebookUrl: r[6], expiresAt: r[7]
     });
   }
-
   announcements.reverse();
 
-  const classData = ss.getSheetByName(CLASS_SHEET).getDataRange().getDisplayValues();
-  const schedule = {};
-
-  for (let i = 1; i < classData.length; i++) {
-    const r = classData[i];
-    const day = String(r[0]).trim().toLowerCase();
-    const subject = String(r[1]).trim();
-    const active = String(r[6]).trim().toLowerCase();
-
-    if (!day || !subject || active === 'false') {
-      continue;
-    }
-
-    if (!schedule[day]) {
-      schedule[day] = [];
-    }
-
-    schedule[day].push({
-      subject: subject,
-      instructor: r[2],
-      platform: r[3] || 'Zoom',
-      classTime: r[4] || '6:00 PM',
-      link: r[5]
-    });
+  const classes = getPublishedClasses_();
+  if (e && e.parameter && e.parameter.student) {
+    const level = String(e.parameter.student).toLowerCase();
+    const selected = classes.filter(function(x) { return x.yearLevel.toLowerCase() === level; });
+    const academicYear = selected.length ? selected[0].academicYear : '';
+    return json_({ok:true, academicYear:academicYear, classes:selected, announcements:announcements});
   }
 
-  const response = {
-    ok: true,
-    announcements: announcements,
-    schedule: schedule
-  };
+  const legacy = ss.getSheetByName(CLASS_SHEET).getDataRange().getDisplayValues();
+  const schedule = {};
+  for (let i = 1; i < legacy.length; i++) {
+    const r = legacy[i];
+    const day = String(r[0]).trim().toLowerCase();
+    const subject = String(r[1]).trim();
+    if (!day || !subject || String(r[6]).trim().toLowerCase() === 'false') continue;
+    if (!schedule[day]) schedule[day] = [];
+    schedule[day].push({subject:subject, instructor:r[2], platform:r[3] || 'Zoom', classTime:r[4] || '6:00 PM', link:r[5]});
+  }
+  return json_({ok:true, announcements:announcements, schedule:schedule});
+}
 
-  return ContentService
-    .createTextOutput(JSON.stringify(response))
-    .setMimeType(ContentService.MimeType.JSON);
+function json_(data) {
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function isAuthorizedAdmin_() {
+  const email = Session.getActiveUser().getEmail();
+  return String(email).toLowerCase() === ADMIN_EMAIL;
+}
+
+function requireAdmin_() {
+  if (!isAuthorizedAdmin_()) throw new Error('Access denied. Sign in as ' + ADMIN_EMAIL + '.');
+}
+
+function getPublishedClasses_() {
+  const ss = SpreadsheetApp.getActive();
+  const sh = ss.getSheetByName(SCHEDULE_SHEET);
+  const settings = ss.getSheetByName(SETTINGS_SHEET).getDataRange().getDisplayValues();
+  const published = {};
+  for (let i = 1; i < settings.length; i++) {
+    const r = settings[i];
+    if (String(r[3]).toLowerCase() === 'true') {
+      published[String(r[0]) + '|' + String(r[1]) + '|' + String(r[2]).toLowerCase()] = true;
+    }
+  }
+  const rows = sh.getDataRange().getDisplayValues();
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    const key = String(r[1]) + '|' + String(r[2]) + '|' + String(r[3]).toLowerCase();
+    if (!published[key] || String(r[11]).toLowerCase() === 'false') continue;
+    out.push({
+      id:r[0], academicYear:r[1], program:r[2], yearLevel:r[3], day:r[4],
+      subject:r[5], units:r[6], instructor:r[7], platform:r[8],
+      classTime:r[9], link:r[10]
+    });
+  }
+  return out;
+}
+
+function adminGetData() {
+  requireAdmin_();
+  const sh = SpreadsheetApp.getActive().getSheetByName(SCHEDULE_SHEET);
+  const rows = sh.getDataRange().getDisplayValues();
+  const data = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r[0]) continue;
+    data.push({id:r[0], academicYear:r[1], program:r[2], yearLevel:r[3], day:r[4], subject:r[5], units:r[6], instructor:r[7], platform:r[8], classTime:r[9], link:r[10], active:String(r[11]).toLowerCase() !== 'false'});
+  }
+  const settings = SpreadsheetApp.getActive().getSheetByName(SETTINGS_SHEET).getDataRange().getDisplayValues();
+  const published = [];
+  for (let i = 1; i < settings.length; i++) {
+    if (String(settings[i][3]).toLowerCase() === 'true') published.push({academicYear:settings[i][0], program:settings[i][1], yearLevel:settings[i][2]});
+  }
+  return {email:ADMIN_EMAIL, classes:data, published:published};
+}
+
+function adminSaveClass(item) {
+  requireAdmin_();
+  const required = ['academicYear','program','yearLevel','day','subject','instructor','platform','classTime'];
+  for (let i = 0; i < required.length; i++) {
+    if (!item[required[i]]) throw new Error('Please complete ' + required[i] + '.');
+  }
+  const sh = SpreadsheetApp.getActive().getSheetByName(SCHEDULE_SHEET);
+  const id = item.id || Utilities.getUuid();
+  const row = [id,item.academicYear,item.program,item.yearLevel,item.day,item.subject,item.units || '',item.instructor,item.platform,item.classTime,item.link || '',true];
+  const values = sh.getDataRange().getValues();
+  let target = -1;
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]) === String(id)) { target = i + 1; break; }
+  }
+  if (target > 0) sh.getRange(target,1,1,row.length).setValues([row]);
+  else sh.appendRow(row);
+  return adminGetData();
+}
+
+function adminDeleteClass(id) {
+  requireAdmin_();
+  const sh = SpreadsheetApp.getActive().getSheetByName(SCHEDULE_SHEET);
+  const values = sh.getDataRange().getDisplayValues();
+  for (let i = values.length - 1; i >= 1; i--) {
+    if (String(values[i][0]) === String(id)) sh.deleteRow(i + 1);
+  }
+  return adminGetData();
+}
+
+function adminPublish(academicYear, program, yearLevel) {
+  requireAdmin_();
+  const ss = SpreadsheetApp.getActive();
+  const classes = ss.getSheetByName(SCHEDULE_SHEET).getDataRange().getDisplayValues();
+  let count = 0;
+  for (let i = 1; i < classes.length; i++) {
+    const r = classes[i];
+    if (String(r[1]) === String(academicYear) && String(r[2]) === String(program) && String(r[3]).toLowerCase() === String(yearLevel).toLowerCase() && String(r[11]).toLowerCase() !== 'false') count++;
+  }
+  if (!count) throw new Error('There are no active classes to publish for this selection.');
+  const sh = ss.getSheetByName(SETTINGS_SHEET);
+  const values = sh.getDataRange().getDisplayValues();
+  let found = false;
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]) === String(academicYear) && String(values[i][1]) === String(program) && String(values[i][2]).toLowerCase() === String(yearLevel).toLowerCase()) {
+      sh.getRange(i + 1,4).setValue(true);
+      found = true;
+    } else if (String(values[i][2]).toLowerCase() === String(yearLevel).toLowerCase()) {
+      sh.getRange(i + 1,4).setValue(false);
+    }
+  }
+  if (!found) sh.appendRow([academicYear,program,yearLevel,true]);
+  return {ok:true, count:count, academicYear:academicYear, program:program, yearLevel:yearLevel};
+}
+
+function adminUnpublish(academicYear, program, yearLevel) {
+  requireAdmin_();
+  const sh = SpreadsheetApp.getActive().getSheetByName(SETTINGS_SHEET);
+  const values = sh.getDataRange().getDisplayValues();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]) === String(academicYear) && String(values[i][1]) === String(program) && String(values[i][2]).toLowerCase() === String(yearLevel).toLowerCase()) sh.getRange(i + 1,4).setValue(false);
+  }
+  return {ok:true};
 }
