@@ -1,11 +1,24 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0f2747"><meta name="description" content="Zambales Bible College Online Classroom portal"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=5"><title>ZBC Online Classroom</title></head>
-<body><div class="bg-glow glow-1"></div><div class="bg-glow glow-2"></div>
-<header class="site-header shell"><a class="brand" href="#top"><div class="brand-mark logo-mark"><img src="zbc-logo.png" alt="Zambales Bible College logo"></div><div><p class="eyebrow">Zambales Bible College</p><h1>Online Classroom</h1></div></a><button id="installBtn" class="ghost-btn hidden">Install App</button></header>
-<main id="top" class="shell main-grid">
-<section class="hero-panel card"><div class="hero-copy"><span class="status-pill" id="dayPill">Loading…</span><p class="eyebrow">Welcome to your class portal</p><h2 id="heroTitle">Today's Classes</h2><p id="heroSubtitle" class="hero-subtitle">Choose your subject below to enter the correct classroom.</p></div></section>
-<section class="today-card card"><div class="section-heading"><div><p class="eyebrow">Today</p><h3>Today's Classes</h3></div><span id="liveClock" class="clock">--:--</span></div><div id="todayClasses" class="today-classes"></div></section>
-<section class="schedule-section card"><div class="section-heading"><div><p class="eyebrow">Monday–Thursday</p><h3>Weekly Schedule</h3></div><span class="mini-note">Philippine Time</span></div><div id="scheduleGrid" class="schedule-grid"></div></section>
-<section class="announcements card"><div class="section-heading"><div><p class="eyebrow">Updates</p><h3>Announcements</h3></div></div><div id="announcementList" class="announcement-list"></div></section>
-<section class="quick-guide card"><div class="section-heading"><div><p class="eyebrow">Before class</p><h3>Quick Guide</h3></div></div><ol class="guide-list"><li>Choose your subject carefully before opening the classroom.</li><li>Enter around 10 minutes before class and use your complete name.</li><li>Check Discord regularly for files, assignments, and updates.</li></ol></section>
-</main><footer class="site-footer shell"><p>Zambales Bible College • Equipping men and women for ministry</p></footer><div id="offlineBanner" class="offline-banner hidden">You are offline. Cached portal information is still available.</div><script src="config.js?v=5"></script><script src="app.js?v=5"></script></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102b50"><meta name="description" content="Zambales Bible College student classroom links">
+<title>ZBC Online Classroom</title>
+<style>
+:root{--navy:#102b50;--blue:#2864a5;--gold:#d5aa4b;--ink:#182538;--muted:#65748a;--line:#dce3ec}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(145deg,#f6f8fb,#eaf0f7);font:16px Arial,sans-serif;color:var(--ink);display:grid;place-items:center;padding:24px}
+main{width:min(760px,100%)}.brand{display:flex;align-items:center;gap:14px;margin-bottom:24px}.brand img{width:64px;height:64px;object-fit:contain}.brand small{display:block;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:bold;font-size:11px}.brand strong{font-size:20px;color:var(--navy)}
+.hero{background:linear-gradient(125deg,#102b50,#235589);border-radius:24px;padding:36px;color:white;box-shadow:0 18px 45px #102b5025}.eyebrow{color:#f0d58f;font-size:12px;font-weight:bold;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(30px,6vw,48px);margin:12px 0}.hero p{color:#e0e9f3;line-height:1.65;margin:0;max-width:580px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.option{display:block;background:white;border:1px solid var(--line);border-radius:18px;padding:23px;text-decoration:none;color:inherit;box-shadow:0 10px 30px #102b5010;transition:transform .15s}.option:hover{transform:translateY(-3px)}.option span{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);font-weight:bold}.option h2{color:var(--navy);margin:10px 0 7px;font-size:23px}.option p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}.go{display:inline-block;margin-top:17px;color:var(--blue);font-weight:bold}.foot{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+@media(max-width:580px){.hero{padding:26px}.options{grid-template-columns:1fr}.brand img{width:55px;height:55px}}
+</style>
+</head>
+<body><main>
+<div class="brand"><img src="zbc-logo.png" alt="ZBC logo"><div><small>Zambales Bible College</small><strong>Online Classroom</strong></div></div>
+<section class="hero"><div class="eyebrow">Student Portal</div><h1>Choose your year level.</h1><p>Welcome to the ZBC Online Classroom. Select your current year level to view your subjects, instructors, class times, and official classroom links.</p></section>
+<section class="options">
+<a class="option" href="first-year/"><span>Certificate in Christian Ministries</span><h2>First Year</h2><p>View your First Year weekly schedule and join your online classes.</p><span class="go">Open First Year Classroom →</span></a>
+<a class="option" href="second-year/"><span>Certificate in Christian Ministries</span><h2>Second Year</h2><p>View your Second Year weekly schedule and join your online classes.</p><span class="go">Open Second Year Classroom →</span></a>
+</section>
+<div class="foot">Zambales Bible College • Equipping Men and Women for Ministry</div>
+</main></body></html>
